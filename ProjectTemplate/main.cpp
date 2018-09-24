@@ -47,14 +47,13 @@ union DoubleDataConvert
 	u8  byByte[8];
 } doubledataConvert;
 
-
 //////////////////////////////////////////////////////////////////////////////
 //////////////////            Global Variable       //////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 int main()
 {
-	uint16_t loop500Hzcnt,loop200HzCnt,loop50HzCnt , loop600HzCnt,loop100HzCnt, loop20HzCnt , loop10HzCnt=0;
+	uint16_t loop500Hzcnt, loop200HzCnt, loop50HzCnt, loop600HzCnt, loop100HzCnt, loop20HzCnt, loop10HzCnt = 0;
 	while (tskmgr.Time() < 1);
 
 	double curTime = 0, oldTime = 0;
@@ -67,20 +66,20 @@ int main()
 
 		if (deltaT >= 0.002)
 		{
-				oldTime = curTime;
-			
+			oldTime = curTime;
+
 			loop500Hzcnt++;
-			if(loop500Hzcnt>=5)
+			if (loop500Hzcnt >= 5)
 			{//100HZ 控制
 				loop500Hzcnt = 0;
 				loop100HzCnt++;
-				if(loop100HzCnt>=2)
+				if (loop100HzCnt >= 2)
 				{//50HZ 
-					loop100HzCnt=0;
+					loop100HzCnt = 0;
 					loop10HzCnt++;
-					if(loop10HzCnt>=5)
+					if (loop10HzCnt >= 5)
 					{//10HZ
-						loop10HzCnt=0;
+						loop10HzCnt = 0;
 					}
 				}
 			}
@@ -88,7 +87,7 @@ int main()
 			if (++cnt > 5)
 			{
 				cnt = 0;
-//				com<<"test"<<"\r\n";
+				//com<<"test"<<"\r\n";
 			}
 		}
 	}
