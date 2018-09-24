@@ -34,10 +34,7 @@ public:
 			return true;
 		else
 			return false;
-	}
-
-	
-	
+	}		
 	void CreateCheckCode()
 	{
 		checkSum = header + fnCode + dataLength;
