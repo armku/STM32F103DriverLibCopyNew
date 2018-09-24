@@ -41,7 +41,13 @@ void Socket_esp8266::GetTCPStatus(void)
 
 bool Socket_esp8266::Write(char* data, unsigned int num)
 {
-	return SendMultipleMode(data, num);
+	if (!SendMultipleMode(data, num))
+	{
+		mIsConnected = false;
+		Init();
+		return false;
+	}
+	return true;
 }
 
 unsigned int Socket_esp8266::Read(char* data)
@@ -175,7 +181,7 @@ void Socket_esp8266::CheckStatus()
 	curTime = tskmgr.Time();
 	if ((curTime - oldTimeout > 5) && ((mWifiStatus == WIFI_FREE) && (mWIFIInitStep != WIFIInit_FINISH)))
 		mWifiStatus = WIFI_FREE;
-	if ((curTime - TxoldTime) > 2)
+	if (((curTime - TxoldTime) > 2) || ((mWIFIInitStep != WIFIInit_FINISH) && (mWifiStatus == WIFI_FREE)))
 	{
 		TxoldTime = curTime;
 		switch (mWifiStatus)
@@ -189,6 +195,7 @@ void Socket_esp8266::CheckStatus()
 			{
 			case WIFIInit_START:
 				ClearBuffer();
+				oldTimeout = tskmgr.Time();			//初始化计时
 				mIsConnected = false;
 				mWIFIInitStep = WIFIInit_KICK;
 				mWifiStatus = WIFI_CON;
@@ -300,8 +307,7 @@ void Socket_esp8266::CheckStatus()
 		switch (mWifiStatus)
 		{
 		case WIFI_FREE:
-			oldTimeout = tskmgr.Time();
-			if (mUsart.RxSize() > 0)
+			while (mUsart.RxSize() > 0)
 			{
 				mUsart.GetBytes(&temp, 1);
 				if (temp == '\0')
@@ -443,7 +449,7 @@ void Socket_esp8266::CheckStatus()
 				mUsart.GetBytes(&temp, 1);
 				if (temp == '\0')
 					break;
-				mReceiveBuffer[mReceiveBufferIndex++%ESP8266_RECEIVE_BUFFER_SIZE] = temp;
+				mReceiveBuffer[mReceiveBufferIndex++ % ESP8266_RECEIVE_BUFFER_SIZE] = temp;
 				mReceiveBuffer[mReceiveBufferIndex] = '\0';
 				if (strstr(mReceiveBuffer, "OK") || strstr(mReceiveBuffer, "ERROR"))
 				{
@@ -459,7 +465,7 @@ void Socket_esp8266::CheckStatus()
 				mUsart.GetBytes(&temp, 1);
 				if (temp == '\0')
 					break;
-				mReceiveBuffer[mReceiveBufferIndex++%ESP8266_RECEIVE_BUFFER_SIZE] = temp;
+				mReceiveBuffer[mReceiveBufferIndex++ % ESP8266_RECEIVE_BUFFER_SIZE] = temp;
 				mReceiveBuffer[mReceiveBufferIndex] = '\0';
 				if (strstr(mReceiveBuffer, "OK") || strstr(mReceiveBuffer, "ALREADY CONNECTED"))
 				{
@@ -555,6 +561,11 @@ void Socket_esp8266::CheckStatus()
 		default:
 			break;
 		}
+	}
+	//重新链接
+	if (!GetConnectStatus() && (mWifiStatus == WIFI_FREE) && (mWIFIInitStep == WIFIInit_FINISH))
+	{
+		mWIFIInitStep = WIFIInit_START;
 	}
 }
 

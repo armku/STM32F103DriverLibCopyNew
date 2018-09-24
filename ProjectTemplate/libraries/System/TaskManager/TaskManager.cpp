@@ -3,8 +3,6 @@
 #include "USART.h"
 extern USART com1;
 
-
-
 double TaskManager::_it_time = 0;
 u16 TaskManager::_lose_tick_cnt = 0;
 double TaskManager::_old_time = 0;
@@ -47,7 +45,7 @@ void TaskManager::Update()
 	{
 		_lose_tick_cnt++;
 		_it_time += 1.8;
-//		com<<"Lost tick:"<<_lose_tick_cnt<<"\n";
+//		com1<<"Lost tick:"<<_lose_tick_cnt<<"\n";
 	}
 }
 
