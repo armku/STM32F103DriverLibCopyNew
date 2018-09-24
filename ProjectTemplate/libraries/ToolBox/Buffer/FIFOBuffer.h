@@ -4,7 +4,6 @@
 #include "stm32f10x.h"
 #include "DataFrame.h"
 
-
 template<typename T, u16 MAX_SIZE>
 class FIFOBuffer
 {
